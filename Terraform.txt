@@ -1,0 +1,178 @@
+Day 1
+
+Terraform is a open source infrastructure as a code tool by using that we can create resources in cloud providers.
+
+terraform init is used to initialize a Terraform project by downloading providers and preparing the working directory.
+ 
+Terraform plan is a dry run that shows the resources to be created, updated, or deleted, allowing us to verify the changes before provisioning the infrastructure.
+ 
+terraform apply applies the execution plan and provisions or modifies the infrastructure
+
+Terraform state file is used to keep track of the resources that terraform manages. It stores the current state of infrastructure that plan and apply changes accurately
+
+-------------------------------------------------------
+
+ 
+# Creating EC2 Instance
+
+provider "aws" {
+  region = "us-east-1" 
+}
+
+resource "aws_instance" "myrefinstance" {
+  ami           = "ami-091138d0f0d41ff90"
+  instance_type = "t3.micro"
+  key_name = "RD key"
+  subnet_id = "subnet-015f6441357b3bf93"
+  vpc_security_group_ids = ["sg-09e8f22937eb53ec4"]
+
+  tags = {
+    Name = "MyTerraformInstance"
+  }
+}
+
+--------------------------------------------------------
+
+# Creating S3 Bucket
+ 
+resource "aws_s3_bucket" "example" {
+  bucket = "my-tf-test-bucket"
+
+  tags = {
+    Name        = "My bucket"
+    Environment = "Dev"
+  }
+}
+
+example = Terraform local resource name used within Terraform code
+my-tf-test-bucket = Actual S3 bucket name created in AWS
+My bucket = Tag used for identification, not the bucket name.
+
+---------------------------------------------------------------
+
+Day 2
+
+Providers - Provider is a plugin that allows Terraform to interact with a specific platform or service such as AWS, AZURE, GCP to create the resources.
+Creating resource in multiple region.
+
+2. Creating resource multiple cloud
+	 
+3. Variable 
+	1.Input Variable = Pass some info to terraform that is called as input variable
+	2.Output Variable = Terraform will provide the result
+	3. Conditional operator
+
+4. Creating Resources in Multiple Regions
+
+provider "aws" {
+  alias = "us-east-1"
+  region = "us-east-1"
+}
+
+provider "aws" {
+  alias = "eu-north-1"
+  region = "eu-north-1"
+}
+
+resource "aws_instance" "myrefinstance" {
+  ami = "ami-091138d0f0d41ff90"
+  instance_type = "t2.micro"
+  key_name = "RD key"
+  subnet_id = "subnet-015f6441357b3bf93"
+  vpc_security_group_ids = ["sg-09e8f22937eb53ec4"]
+  provider = aws.us-east-1
+
+  tags = {
+    Name = "MyvirginiaInstance"
+  }
+}
+
+resource "aws_instance" "mexample1" {
+  ami = "ami-05d62b9bc5a6ca605"
+  instance_type = "t3.micro"
+  key_name = "newkeypair"
+  subnet_id = "subnet-07b4b6619db5aad5c"
+  vpc_security_group_ids = ["sg-0b2f6e239127b5c4c"]
+  provider = aws.eu-north-1
+
+  tags = {
+    Name = "StockhomInstance"
+  }
+}
+
+
+5. Terraform Code Organization = Instead of writing everything in a single main.tf file, we split the configuration into multiple files such as provider.tf, variable.tf, main.tf, and output.tf. This is called Terraform code organization or modular file structure. It improves readability, maintainability and collaboration
+
+6. Input Variable = Input variables are parameters that allow us to pass values into a Terraform configuration. They make the code reusable, flexible and easier to maintain by avoiding hardcoded values.
+
+7. Output Variables = It is used to display information about the resources that terraform creates
+
+provider.tf
+-----------
+
+provider "aws" {
+  region = "us-east-1"
+}
+
+main.tf
+-------
+
+resource "aws_instance" "myrefinstance" {
+  ami = var.ami
+  instance_type = var.instance_type
+  key_name = var.key_name
+  subnet_id = var.subnet_id
+  vpc_security_group_ids = [var.vpc_security_group_ids]
+
+  tags = {
+    Name = "MyvirginiaInstance"
+  }
+}
+
+variable.tf
+-----------
+
+variable "ami" {
+type = string
+}
+
+variable "instance_type"{
+type = string
+}
+
+variable "key_name" {
+type = string
+default = "RD key"
+}
+
+variable "subnet_id" {
+type = string
+}
+
+variable "vpc_security_group_ids" {
+type = string
+}
+
+
+terraform.tfvars
+
+ami = "ami-091138d0f0d41ff90"
+instance_type = "t2.micro"
+key_name = "RD key"
+subnet_id = "subnet-015f6441357b3bf93"
+vpc_security_group_ids = "sg-09e8f22937eb53ec4"
+
+output.tf
+
+output "ec2_public_ip" {
+  values = aws_instance.myrefinstance.public_ip
+}
+
+
+output "ec2_availability_zone" {
+  values = aws_instance.myrefinstance.availability_zone
+}
+
+
+
+
