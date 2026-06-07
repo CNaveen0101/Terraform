@@ -199,7 +199,7 @@ Entering into the ec2-instance directory
 In this path create the file provider.tf, main.tf, variable.tf, output.tf.
 Then if any development team want to create infrastructure, they just create the simple main.tf file with the values(AMI, instance_type) and in the source they mentioned the GitHub path.
 
-main.tf
+main.tf (For Modules)
 -------
 
 provider "aws" {
@@ -221,12 +221,12 @@ Day 4
 Terraform state file Backend
 ------------------------------
 
-Our resource file stored in the github repo e.g: main.tf, provider.tf, variable.tf
-State file stored in the S3 for security purpose
+* Our resource file stored in the github repo e.g: main.tf, provider.tf, variable.tf
+* State file stored in the S3 for security purpose
 
 ---------------------------------------------------
 
-Instance creation file
+# Instance creation file
 
 main.tf
 --------
