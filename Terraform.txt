@@ -1,4 +1,5 @@
 Day 1
+------
 
 Terraform is a open source infrastructure as a code tool by using that we can create resources in cloud providers.
 
@@ -10,10 +11,11 @@ terraform apply applies the execution plan and provisions or modifies the infras
 
 Terraform state file is used to keep track of the resources that terraform manages. It stores the current state of infrastructure that plan and apply changes accurately
 
--------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------------------------------------
 
  
 # Creating EC2 Instance
+------------------------
 
 provider "aws" {
   region = "us-east-1" 
@@ -34,6 +36,7 @@ resource "aws_instance" "myrefinstance" {
 --------------------------------------------------------
 
 # Creating S3 Bucket
+--------------------
  
 resource "aws_s3_bucket" "example" {
   bucket = "my-tf-test-bucket"
@@ -48,21 +51,25 @@ example = Terraform local resource name used within Terraform code
 my-tf-test-bucket = Actual S3 bucket name created in AWS
 My bucket = Tag used for identification, not the bucket name.
 
----------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------------------------------
 
 Day 2
+------
 
 Providers - Provider is a plugin that allows Terraform to interact with a specific platform or service such as AWS, AZURE, GCP to create the resources.
 Creating resource in multiple region.
 
 2. Creating resource multiple cloud
+------------------------------------
 	 
 3. Variable 
+------------
 	1.Input Variable = Pass some info to terraform that is called as input variable
 	2.Output Variable = Terraform will provide the result
 	3. Conditional operator
 
 4. Creating Resources in Multiple Regions
+-----------------------------------------
 
 provider "aws" {
   alias = "us-east-1"
@@ -105,7 +112,9 @@ resource "aws_instance" "mexample1" {
 
 6. Input Variable = Input variables are parameters that allow us to pass values into a Terraform configuration. They make the code reusable, flexible and easier to maintain by avoiding hardcoded values.
 
-7. Output Variables = It is used to display information about the resources that terraform creates
+7. Output Variables = It is used to display information about the resources that terraform creates.
+
+Created variable.tf. In this variable file we not mention the values in the default section, in this case when the user only need to give the input value when enter the terraform plan command.
 
 provider.tf
 -----------
@@ -133,46 +142,121 @@ variable.tf
 -----------
 
 variable "ami" {
-type = string
+description = "value of ami"
 }
 
 variable "instance_type"{
-type = string
+description = "value of instance type"
 }
 
 variable "key_name" {
-type = string
-default = "RD key"
+description = "Value of Key Name"
 }
 
 variable "subnet_id" {
-type = string
+description = "Value of Subnet id"
 }
 
 variable "vpc_security_group_ids" {
-type = string
+description = "Value of Security group"
 }
 
 
 terraform.tfvars
+----------------
 
 ami = "ami-091138d0f0d41ff90"
 instance_type = "t2.micro"
 key_name = "RD key"
 subnet_id = "subnet-015f6441357b3bf93"
-vpc_security_group_ids = "sg-09e8f22937eb53ec4"
+vpc_security_group_ids = "vi ma"
 
 output.tf
+---------
 
 output "ec2_public_ip" {
-  values = aws_instance.myrefinstance.public_ip
+  value = aws_instance.myrefinstance.public_ip
 }
-
 
 output "ec2_availability_zone" {
-  values = aws_instance.myrefinstance.availability_zone
+  value = aws_instance.myrefinstance.availability_zone
+}
+
+-------------------------------------------------------------------------------------------------------------------------------------------------
+
+Day 3
+
+Modules
+----------
+
+A Terraform module is a reusable collection of Terraform configuration files used to create and manage a set of infrastructure resources. Modules help reduce code duplication, improve organization and make infrastructure easier to maintain.
+
+Example : Instead of writing EC2 instance code multiple times, we can create an EC2 module once and reuse it whether needed by passing different input variables.
+
+In the GitHub created one repo = Terraform
+Created directories in the repo = mkdir -p /Modules/ec2-instance
+Entering into the ec2-instance directory
+In this path create the file provider.tf, main.tf, variable.tf, output.tf.
+Then if any development team want to create infrastructure, they just create the simple main.tf file with the values(AMI, instance_type) and in the source they mentioned the GitHub path.
+
+main.tf
+-------
+
+provider "aws" {
+  region = "us-east-1"
+}
+ 
+module "ec2-instance" {
+  source                 = "git::https://github.com/CNaveen0101/Terraform.git"  #We can mention our file path
+  ami                    = "ami-091138d0f0d41ff90"
+  instance_type          = "t2.micro"
+  key_name               = "RD key"
+  subnet_id              = "subnet-015f6441357b3bf93"
+  vpc_security_group_ids = ["sg-09e8f22937eb53ec4"]
 }
 
 
+Day 4
+
+Terraform state file Backend
+------------------------------
+
+Our resource file stored in the github repo e.g: main.tf, provider.tf, variable.tf
+State file stored in the S3 for security purpose
+
+---------------------------------------------------
+
+Instance creation file
+
+main.tf
+--------
+
+resource "aws_instance" "myrefinstance" {
+  ami = var.ami
+  instance_type = var.instance_type
+  key_name = var.key_name
+  subnet_id = var.subnet_id
+  vpc_security_group_ids = [var.vpc_security_group_ids]
+
+  tags = {
+    Name = "MyvirginiaInstance"
+  }
+}
 
 
+Create backend.tf file, in this file we can mention s3 bucket name, then only our statefile store in the s3 bucket. (For this we need a S3 bucket separately)
+
+backend.tf
+----------
+
+terraform {
+  backend "s3" {
+    bucket = "my-sff-test-bucket"
+    key    = "naveen/myfolder/key" #path in the s3 bucket, in this path only statefile stored
+    region = "us-east-1"
+  }
+}
+
+After this we can mention terraform init, terraform plan, terraform plan. Then our state file store in the S3 bucket
+
+-----------------------------------------------------------------------------------------------------
