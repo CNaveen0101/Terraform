@@ -260,3 +260,7 @@ terraform {
 After this we can mention terraform init, terraform plan, terraform plan. Then our state file store in the S3 bucket
 
 -----------------------------------------------------------------------------------------------------
+
+Day 4 - Provisioners
+
+In Terraform, provisioners are used to execute scripts or commands on a local machine or on a resource after it is created (or before it is destroyed).
