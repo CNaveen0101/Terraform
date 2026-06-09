@@ -261,6 +261,38 @@ After this we can mention terraform init, terraform plan, terraform plan. Then o
 
 -----------------------------------------------------------------------------------------------------
 
-Day 4 - Provisioners
+Day 5 - Provisioners
 
 In Terraform, provisioners are used to execute scripts or commands on a local machine or on a resource after it is created (or before it is destroyed).
+
+Types of Provisioners
+
+1. file
+
+Copies files or directories to a remote resource.
+
+Eg
+provisioner "file" {
+  source      = "app.conf"
+  destination = "/etc/app.conf"
+}
+
+2. local-exec
+
+local-exec is a Terraform provisioner that executes commands on the machine where Terraform is running, after a resource is created or destroyed
+
+Eg:
+provisioner "local-exec" {
+  command = "echo Resource created!"
+}
+
+3. remote-exec
+Runs commands on the resources which we created 
+
+Eg:
+provisioner "remote-exec" {
+  inline = [
+    "sudo apt update",
+    "sudo apt install -y nginx"
+  ]
+}
