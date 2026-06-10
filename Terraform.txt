@@ -1,5 +1,4 @@
 Day 1
-------
 
 Terraform is a open source infrastructure as a code tool by using that we can create resources in cloud providers.
 
@@ -11,14 +10,13 @@ terraform apply applies the execution plan and provisions or modifies the infras
 
 Terraform state file is used to keep track of the resources that terraform manages. It stores the current state of infrastructure that plan and apply changes accurately
 
----------------------------------------------------------------------------------------------------------------------------------------------------------
+-------------------------------------------------------
 
  
 # Creating EC2 Instance
-------------------------
 
 provider "aws" {
-  region = "us-east-1" 
+  region = "us-east-1"
 }
 
 resource "aws_instance" "myrefinstance" {
@@ -36,7 +34,6 @@ resource "aws_instance" "myrefinstance" {
 --------------------------------------------------------
 
 # Creating S3 Bucket
---------------------
  
 resource "aws_s3_bucket" "example" {
   bucket = "my-tf-test-bucket"
@@ -60,16 +57,13 @@ Providers - Provider is a plugin that allows Terraform to interact with a specif
 Creating resource in multiple region.
 
 2. Creating resource multiple cloud
-------------------------------------
-	 
-3. Variable 
-------------
+	
+3. Variable
 	1.Input Variable = Pass some info to terraform that is called as input variable
 	2.Output Variable = Terraform will provide the result
 	3. Conditional operator
 
 4. Creating Resources in Multiple Regions
------------------------------------------
 
 provider "aws" {
   alias = "us-east-1"
@@ -182,7 +176,7 @@ output "ec2_availability_zone" {
   value = aws_instance.myrefinstance.availability_zone
 }
 
--------------------------------------------------------------------------------------------------------------------------------------------------
+---
 
 Day 3
 
@@ -199,7 +193,7 @@ Entering into the ec2-instance directory
 In this path create the file provider.tf, main.tf, variable.tf, output.tf.
 Then if any development team want to create infrastructure, they just create the simple main.tf file with the values(AMI, instance_type) and in the source they mentioned the GitHub path.
 
-main.tf (For Modules)
+main.tf
 -------
 
 provider "aws" {
@@ -212,7 +206,7 @@ module "ec2-instance" {
   instance_type          = "t2.micro"
   key_name               = "RD key"
   subnet_id              = "subnet-015f6441357b3bf93"
-  vpc_security_group_ids = ["sg-09e8f22937eb53ec4"]
+  vpc_security_group_ids = "sg-09e8f22937eb53ec4"
 }
 
 
@@ -221,12 +215,12 @@ Day 4
 Terraform state file Backend
 ------------------------------
 
-* Our resource file stored in the github repo e.g: main.tf, provider.tf, variable.tf
-* State file stored in the S3 for security purpose
+Our resource file stored in the github repo e.g: main.tf, provider.tf, variable.tf
+State file stored in the S3 for security purpose
 
 ---------------------------------------------------
 
-# Instance creation file
+Instance creation file
 
 main.tf
 --------
@@ -296,3 +290,31 @@ provisioner "remote-exec" {
     "sudo apt install -y nginx"
   ]
 }
+
+----------------------------------------------------------------------------------------------
+
+Day 6 - Workspace
+
+Terraform workspace is a feature used to manage multiple environments using the same Terraform configuration. Each workspace has its own separate state file, which helps isolate infrastructure resources between environments such as development, testing, and production.
+
+Creating workspaces commands
+
+	terraform workspace new dev
+	terraform workspace new stage
+	terraform workspace new prod
+
+Moving workspace command
+
+	terraform workspace select dev
+
+Checking the current workspace command
+
+	terraform workspace show
+
+Creating files 
+
+	dev.tfvars
+	stage.tfvars
+	prod.tfvars
+
+terraform apply -var-file=prod.tfvars
